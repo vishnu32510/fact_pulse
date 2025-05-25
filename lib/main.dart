@@ -1,5 +1,6 @@
 import 'package:fact_pulse/authentication/authentication.dart';
 import 'package:fact_pulse/bloc_observer.dart';
+import 'package:fact_pulse/debate/debate_screen.dart';
 import 'package:fact_pulse/firebase_options.dart';
 import 'package:fact_pulse/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -25,6 +26,7 @@ class DebateDynamicApp extends StatelessWidget {
       title: 'Debate Dynamic',
       theme: ThemeData(primarySwatch: Colors.indigo),
       home: const LoginScreen(),
+      // home: const DebateScreen(),
     );
   }
 }

@@ -24,6 +24,7 @@ class DebateResponseModel {
 class Claims {
   String? claim;
   String? rating;
+  String? type;
   String? explanation;
   List<String>? sources;
 
@@ -32,6 +33,7 @@ class Claims {
   Claims.fromJson(Map<String, dynamic> json) {
     claim = json['claim'];
     rating = json['rating'];
+    type = json['type'];
     explanation = json['explanation'];
     sources = json['sources'].cast<String>();
   }
@@ -40,6 +42,7 @@ class Claims {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['claim'] = claim;
     data['rating'] = rating;
+    data['type'] = type;
     data['explanation'] = explanation;
     data['sources'] = sources;
     return data;

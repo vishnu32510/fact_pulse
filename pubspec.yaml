@@ -32,19 +32,25 @@ dependencies:
   cupertino_icons: ^1.0.8
   dotenv: ^4.2.0
   equatable: ^2.0.7
+
+  # Firebase
   firebase_auth: ^5.5.4
   firebase_core: ^3.13.1
   firestore_cache: ^2.17.0
+  cloud_firestore: ^5.6.8
+  
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
   flutter_launcher_icons: ^0.14.3
   google_sign_in: ^6.3.0
+  http: ^1.4.0
   perplexity_flutter:
     path: ../perplexity_flutter
   sign_in_with_apple: ^7.0.1
   sizer: ^3.0.5
   speech_to_text: ^7.0.0
+  url_launcher: ^6.3.1
   uuid: ^4.5.1
 
 dev_dependencies:

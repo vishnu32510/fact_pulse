@@ -1,9 +1,11 @@
 import 'package:fact_pulse/authentication/authentication_bloc/authentication_bloc.dart';
 import 'package:fact_pulse/authentication/authentication_enums.dart';
+import 'package:fact_pulse/debate/debate_list_screen.dart';
 import 'package:fact_pulse/debate/debate_screen.dart';
 import 'package:fact_pulse/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -95,7 +97,7 @@ class Dashboard extends StatelessWidget {
         childAspectRatio: 1.0,
         children: [
           buildFeaturedItem(context, 'Live Fact Check', 'assets/icon/mic_check.png', () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const DebateScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const DebatesListScreen(),));
           }),
           buildFeaturedItem(context, 'Image Fact Check', 'assets/icon/scan_check.png', () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const SizedBox()));
