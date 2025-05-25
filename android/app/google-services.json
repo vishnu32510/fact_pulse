@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "85645737322",
+    "project_id": "fact-pulse",
+    "storage_bucket": "fact-pulse.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85645737322:android:beb4697e4ab759b227f913",
+        "android_client_info": {
+          "package_name": "com.example.fact_pulse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85645737322-pvh5a9s4clnveg9ra9evl8fv6a123odm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWONhuVMROQ2s49m3y96YrjAO9TKuM9MI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85645737322-pvh5a9s4clnveg9ra9evl8fv6a123odm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "85645737322-jh5nh682fj9hr06po5euhgeokf417t19.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.factPulse"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
