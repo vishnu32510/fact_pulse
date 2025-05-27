@@ -22,10 +22,9 @@ class DebateDynamicApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Debate Dynamic',
+      title: 'Facts Dynamics',
       theme: ThemeData(primarySwatch: Colors.indigo),
       home: const LoginScreen(),
-      // home: const DebateScreen(),
     );
   }
 }

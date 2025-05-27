@@ -1417,6 +1417,8 @@ PODS:
     - FlutterMacOS
     - Try
   - Try (2.1.1)
+  - url_launcher_ios (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
@@ -1427,6 +1429,7 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - speech_to_text (from `.symlinks/plugins/speech_to_text/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -1473,6 +1476,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   speech_to_text:
     :path: ".symlinks/plugins/speech_to_text/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
@@ -1508,6 +1513,7 @@ SPEC CHECKSUMS:
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
   speech_to_text: 9dc43a5df3cbc2813f8c7cc9bd0fbf94268ed7ac
   Try: 5ef669ae832617b3cee58cb2c6f99fb767a4ff96
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
 PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 

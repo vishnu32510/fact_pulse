@@ -51,11 +51,7 @@ class FirebaseAuthenticationRepository extends AuthenticationRepository {
     GoogleSignIn? googleSignIn,
   }) : _cache = cache ?? CacheClient(),
        _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-       _googleSignIn =
-           googleSignIn ??
-           GoogleSignIn(
-             clientId: '85645737322-pvh5a9s4clnveg9ra9evl8fv6a123odm.apps.googleusercontent.com',
-           );
+       _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   final CacheClient _cache;
   final firebase_auth.FirebaseAuth _firebaseAuth;
@@ -172,15 +168,21 @@ class SignUpWithEmailAndPasswordFailure implements Exception {
   factory SignUpWithEmailAndPasswordFailure.fromCode(String code) {
     switch (code) {
       case 'invalid-email':
-        return SignUpWithEmailAndPasswordFailure('Email is not valid or badly formatted.',code);
+        return SignUpWithEmailAndPasswordFailure('Email is not valid or badly formatted.', code);
       case 'user-disabled':
-        return SignUpWithEmailAndPasswordFailure('This user has been disabled. Please contact support for help.',code);
+        return SignUpWithEmailAndPasswordFailure(
+          'This user has been disabled. Please contact support for help.',
+          code,
+        );
       case 'email-already-in-use':
-        return SignUpWithEmailAndPasswordFailure('An account already exists for that email.',code);
+        return SignUpWithEmailAndPasswordFailure('An account already exists for that email.', code);
       case 'operation-not-allowed':
-        return SignUpWithEmailAndPasswordFailure('Operation is not allowed.  Please contact support.',code);
+        return SignUpWithEmailAndPasswordFailure(
+          'Operation is not allowed.  Please contact support.',
+          code,
+        );
       case 'weak-password':
-        return SignUpWithEmailAndPasswordFailure('Please enter a stronger password.',code);
+        return SignUpWithEmailAndPasswordFailure('Please enter a stronger password.', code);
       default:
         return SignUpWithEmailAndPasswordFailure(code);
     }

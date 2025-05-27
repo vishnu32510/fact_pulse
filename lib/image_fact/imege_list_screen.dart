@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fact_pulse/core/widgets/fact_check_list_view.dart';
 import 'package:fact_pulse/image_fact/image_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-// 1️⃣ ImageReportListScreen
 class ImageReportListScreen extends StatelessWidget {
   const ImageReportListScreen({super.key});
 
@@ -24,7 +24,6 @@ class ImageReportListScreen extends StatelessWidget {
                 labelText: 'Image context',
                 border: OutlineInputBorder(),
               ),
-
               onChanged: (value) {
                 setState(() {});
               },
@@ -40,11 +39,11 @@ class ImageReportListScreen extends StatelessWidget {
                     : () async {
                         setState(() => saving = true);
                         final uid = FirebaseAuth.instance.currentUser!.uid;
-                        final debatesRef = FirebaseFirestore.instance
+                        final imagesRef = FirebaseFirestore.instance
                             .collection('users')
                             .doc(uid)
                             .collection('images');
-                        final docRef = debatesRef.doc();
+                        final docRef = imagesRef.doc();
                         await docRef.set({
                           'topic': topicCtrl.text.trim(),
                           'createdAt': FieldValue.serverTimestamp(),
@@ -74,51 +73,25 @@ class ImageReportListScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToImageScreen(BuildContext context, String imageId, String topic) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ImageReportScreen(imageId: imageId, topic: topic),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final debatesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('images');
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Your Image Reports')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: debatesRef.orderBy('createdAt', descending: true).snapshots(),
-        builder: (ctx, snap) {
-          if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-          final docs = snap.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text('No Reports yet'));
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (ctx, i) {
-              final data = docs[i].data()! as Map<String, dynamic>;
-              final topic = data['topic'] as String? ?? 'Untitled';
-              final debateId = docs[i].id;
-              return ListTile(
-                title: Text(topic),
-                subtitle: Text(
-                  (data['createdAt'] as Timestamp?)?.toDate().toLocal().toString() ?? '',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ImageReportScreen(imageId: debateId, topic: topic),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateDialog(context),
-        child: const Icon(Icons.add),
-      ),
+    
+    return FactCheckListView(
+      uid: uid,
+      collectionName: 'images',
+      emptyMessage: 'No Image Reports yet',
+      appBarTitle: 'Your Image Reports',
+      onItemTap: _navigateToImageScreen,
+      onAddPressed: _showCreateDialog,
     );
   }
 }

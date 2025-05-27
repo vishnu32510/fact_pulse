@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fact_pulse/core/widgets/fact_check_list_view.dart';
 import 'package:fact_pulse/speech/speech_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-// 1️⃣ SpeechListScreen
 class SpeechListScreen extends StatelessWidget {
   const SpeechListScreen({super.key});
 
@@ -24,7 +24,6 @@ class SpeechListScreen extends StatelessWidget {
                 labelText: 'Speech topic',
                 border: OutlineInputBorder(),
               ),
-
               onChanged: (value) {
                 setState(() {});
               },
@@ -74,51 +73,25 @@ class SpeechListScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToSpeechScreen(BuildContext context, String speechId, String topic) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SpeechScreen(speechId: speechId, topic: topic),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final debatesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('speechs');
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Your Speech')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: debatesRef.orderBy('createdAt', descending: true).snapshots(),
-        builder: (ctx, snap) {
-          if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-          final docs = snap.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text('No Speeches yet'));
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (ctx, i) {
-              final data = docs[i].data()! as Map<String, dynamic>;
-              final topic = data['topic'] as String? ?? 'Untitled';
-              final debateId = docs[i].id;
-              return ListTile(
-                title: Text(topic),
-                subtitle: Text(
-                  (data['createdAt'] as Timestamp?)?.toDate().toLocal().toString() ?? '',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => SpeechScreen(speechId: debateId, topic: topic),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateDialog(context),
-        child: const Icon(Icons.add),
-      ),
+    
+    return FactCheckListView(
+      uid: uid,
+      collectionName: 'speechs',
+      emptyMessage: 'No Speeches yet',
+      appBarTitle: 'Your Speech',
+      onItemTap: _navigateToSpeechScreen,
+      onAddPressed: _showCreateDialog,
     );
   }
 }

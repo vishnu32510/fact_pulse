@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fact_pulse/core/widgets/fact_check_list_view.dart';
 import 'package:fact_pulse/debate/debate_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-// 1️⃣ DebatesListScreen
 class DebatesListScreen extends StatelessWidget {
   const DebatesListScreen({super.key});
 
@@ -24,7 +24,6 @@ class DebatesListScreen extends StatelessWidget {
                 labelText: 'Debate topic',
                 border: OutlineInputBorder(),
               ),
-
               onChanged: (value) {
                 setState(() {});
               },
@@ -74,51 +73,25 @@ class DebatesListScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToDebateScreen(BuildContext context, String debateId, String topic) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DebateScreen(debateId: debateId, topic: topic),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final debatesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('debates');
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Your Debates')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: debatesRef.orderBy('createdAt', descending: true).snapshots(),
-        builder: (ctx, snap) {
-          if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-          final docs = snap.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text('No debates yet'));
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (ctx, i) {
-              final data = docs[i].data()! as Map<String, dynamic>;
-              final topic = data['topic'] as String? ?? 'Untitled';
-              final debateId = docs[i].id;
-              return ListTile(
-                title: Text(topic),
-                subtitle: Text(
-                  (data['createdAt'] as Timestamp?)?.toDate().toLocal().toString() ?? '',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => DebateScreen(debateId: debateId, topic: topic),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateDialog(context),
-        child: const Icon(Icons.add),
-      ),
+    
+    return FactCheckListView(
+      uid: uid,
+      collectionName: 'debates',
+      emptyMessage: 'No debates yet',
+      appBarTitle: 'Your Debates',
+      onItemTap: _navigateToDebateScreen,
+      onAddPressed: _showCreateDialog,
     );
   }
 }

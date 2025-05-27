@@ -1,5 +1,5 @@
 
 abstract class AppConstants {
-  static const String appTitle = "";
-  static const baseUrl = 'http://10.0.0.76:3000/';
+  static const String appTitle = "Fact Pulse";
+  static const double appBarHeight = 60.0;
 }
