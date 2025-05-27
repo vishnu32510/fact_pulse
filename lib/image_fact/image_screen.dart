@@ -12,16 +12,16 @@ import 'package:perplexity_flutter/perplexity_flutter.dart';
 import 'package:speech_to_text/speech_recognition_result.dart' as stt;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-class DebateScreen extends StatefulWidget {
-  final String debateId;
+class ImageReportScreen extends StatefulWidget {
+  final String imageId;
   final String topic;
-  const DebateScreen({super.key, required this.debateId, required this.topic});
+  const ImageReportScreen({super.key, required this.imageId, required this.topic});
 
   @override
-  State<DebateScreen> createState() => _DebateScreenState();
+  State<ImageReportScreen> createState() => _ImageReportScreenState();
 }
 
-class _DebateScreenState extends State<DebateScreen> {
+class _ImageReportScreenState extends State<ImageReportScreen> {
   late stt.SpeechToText _speech;
   late PerplexityClient _client;
   late final String uid;
@@ -29,7 +29,6 @@ class _DebateScreenState extends State<DebateScreen> {
   String textChunks = "";
 
   final _transcriptionController = StreamController<String>.broadcast();
-  final _debateModelController = StreamController<PerplexityResponseModel>.broadcast();
   final _isListeningController = StreamController<bool>.broadcast();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -55,8 +54,8 @@ class _DebateScreenState extends State<DebateScreen> {
     final debateDoc = _firestore
         .collection('users')
         .doc(uid)
-        .collection('debates')
-        .doc(widget.debateId);
+        .collection('images')
+        .doc(widget.imageId);
 
     final snapshot = await debateDoc.get();
     if (!snapshot.exists) {
@@ -94,10 +93,13 @@ class _DebateScreenState extends State<DebateScreen> {
   }
 
   Future<void> _onSpeechResult(stt.SpeechRecognitionResult result) async {
+    final prevLen = '$_fullTranscript $textChunks'.split(' ').length;
     textChunks = result.recognizedWords;
     _transcriptionController.add('$_fullTranscript $textChunks');
-    if (textChunks.split(' ').length % 7 == 0) {
-      _queryFactCheck('$_fullTranscript $textChunks');
+    final results = '$_fullTranscript $textChunks';
+    final currLen = results.split(" ").length;
+    if (prevLen - currLen >= 7) {
+      _queryFactCheck(results);
     }
   }
 
@@ -114,8 +116,8 @@ class _DebateScreenState extends State<DebateScreen> {
     final debateDoc = _firestore
         .collection('users')
         .doc(uid)
-        .collection('debates')
-        .doc(widget.debateId);
+        .collection('images')
+        .doc(widget.imageId);
 
     final systemPrompt = loadDebateSystemPrompt(topic: widget.topic);
     final request = ChatRequestModel.defaultRequest(
@@ -144,7 +146,6 @@ class _DebateScreenState extends State<DebateScreen> {
         batch.set(doc, {
           'claim': c.claim,
           'rating': c.rating,
-          'type': c.type,
           'explanation': c.explanation,
           'sources': c.sources,
           'createdAt': FieldValue.serverTimestamp(),
@@ -161,7 +162,6 @@ class _DebateScreenState extends State<DebateScreen> {
   void dispose() {
     _speech.stop();
     _transcriptionController.close();
-    _debateModelController.close();
     _isListeningController.close();
     super.dispose();
   }
@@ -170,7 +170,7 @@ class _DebateScreenState extends State<DebateScreen> {
   Widget build(BuildContext context) {
     return SelectionArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Debate Dynamic')),
+        appBar: AppBar(title: const Text('Image Dynamic')),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -191,10 +191,10 @@ class _DebateScreenState extends State<DebateScreen> {
                   stream: _firestore
                       .collection('users')
                       .doc(uid)
-                      .collection('debates')
-                      .doc(widget.debateId)
+                      .collection('images')
+                      .doc(widget.imageId)
                       .collection('claims')
-                      .orderBy('createdAt',descending: true)
+                      .orderBy('createdAt')
                       .snapshots(),
                   builder: (ctx, snap) {
                     if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
@@ -208,7 +208,6 @@ class _DebateScreenState extends State<DebateScreen> {
                         final claim = Claims(
                           claim: data['claim'] as String?,
                           rating: data['rating'] as String?,
-                          type: data['type'] as String?,
                           explanation: data['explanation'] as String?,
                           sources: (data['sources'] as List<dynamic>?)?.cast<String>(),
                         );
@@ -238,7 +237,6 @@ class _DebateScreenState extends State<DebateScreen> {
 
   // Add this helper if you like:
   Widget _buildClaimBubble(Claims claim, {required VoidCallback onTap}) {
-    print(claim.type.toString());
     final isFor = claim.type == 'FOR';
     final bgColor = isFor ? Colors.green.shade50 : Colors.red.shade50;
     final radius = BorderRadius.circular(12);

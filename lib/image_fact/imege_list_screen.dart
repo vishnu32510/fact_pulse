@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fact_pulse/debate/debate_screen.dart';
+import 'package:fact_pulse/image_fact/image_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-// 1️⃣ DebatesListScreen
-class DebatesListScreen extends StatelessWidget {
-  const DebatesListScreen({super.key});
+// 1️⃣ ImageReportListScreen
+class ImageReportListScreen extends StatelessWidget {
+  const ImageReportListScreen({super.key});
 
   Future<void> _showCreateDialog(BuildContext context) async {
     final topicCtrl = TextEditingController();
@@ -17,11 +17,11 @@ class DebatesListScreen extends StatelessWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setState) => AlertDialog(
-            title: const Text('New Debate'),
+            title: const Text('New Image Report'),
             content: TextField(
               controller: topicCtrl,
               decoration: const InputDecoration(
-                labelText: 'Debate topic',
+                labelText: 'Image context',
                 border: OutlineInputBorder(),
               ),
 
@@ -43,7 +43,7 @@ class DebatesListScreen extends StatelessWidget {
                         final debatesRef = FirebaseFirestore.instance
                             .collection('users')
                             .doc(uid)
-                            .collection('debates');
+                            .collection('images');
                         final docRef = debatesRef.doc();
                         await docRef.set({
                           'topic': topicCtrl.text.trim(),
@@ -55,7 +55,7 @@ class DebatesListScreen extends StatelessWidget {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) =>
-                                DebateScreen(debateId: docRef.id, topic: topicCtrl.text.trim()),
+                                ImageReportScreen(imageId: docRef.id, topic: topicCtrl.text.trim()),
                           ),
                         );
                       },
@@ -80,17 +80,17 @@ class DebatesListScreen extends StatelessWidget {
     final debatesRef = FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
-        .collection('debates');
+        .collection('images');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Your Debates')),
+      appBar: AppBar(title: const Text('Your Image Reports')),
       body: StreamBuilder<QuerySnapshot>(
         stream: debatesRef.orderBy('createdAt', descending: true).snapshots(),
         builder: (ctx, snap) {
           if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
           final docs = snap.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text('No debates yet'));
+          if (docs.isEmpty) return const Center(child: Text('No Reports yet'));
           return ListView.builder(
             itemCount: docs.length,
             itemBuilder: (ctx, i) {
@@ -106,7 +106,7 @@ class DebatesListScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => DebateScreen(debateId: debateId, topic: topic),
+                      builder: (_) => ImageReportScreen(imageId: debateId, topic: topic),
                     ),
                   );
                 },

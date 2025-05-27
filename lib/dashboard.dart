@@ -2,14 +2,23 @@ import 'package:fact_pulse/authentication/authentication_bloc/authentication_blo
 import 'package:fact_pulse/authentication/authentication_enums.dart';
 import 'package:fact_pulse/debate/debate_list_screen.dart';
 import 'package:fact_pulse/debate/debate_screen.dart';
+import 'package:fact_pulse/image_fact/imege_list_screen.dart';
 import 'package:fact_pulse/login_screen.dart';
+import 'package:fact_pulse/profile_screen.dart';
+import 'package:fact_pulse/speech/speech_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  int _navigationIndex = 0;
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthenticationBloc, AuthenticationBlocState>(
@@ -28,7 +37,11 @@ class Dashboard extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
+        body: IndexedStack(
+          index: _navigationIndex,
+          children: [
+            Scaffold(
+              appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
           title: Text(
@@ -40,22 +53,18 @@ class Dashboard extends StatelessWidget {
             //   KConstantFonts.haskoyMedium,
             // ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.black),
-              onPressed: () {
-                context.read<AuthenticationBloc>().add(
-                  const FirebaseAuthentcationLogoutRequested(),
-                );
-              },
-            ),
-          ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [buildFeaturedSection(context)],
-          ),
+              body: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildFeaturedSection(context)
+                    ],
+                ),
+              ),
+            ),
+            ProfileScreen(),
+          ],
         ),
         bottomNavigationBar: buildBottomNavBar(),
       ),
@@ -63,30 +72,28 @@ class Dashboard extends StatelessWidget {
   }
 
   Widget buildCategoryTab(BuildContext context, String label, {bool isSelected = false}) {
-    return Container(
-      alignment: Alignment.center,
-      margin: const EdgeInsets.only(right: 24),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: isSelected ? Colors.black : Colors.transparent, width: 2),
+    return  Container(
+        alignment: Alignment.center,
+        margin: const EdgeInsets.only(right: 24),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: isSelected ? Colors.black : Colors.transparent, width: 2),
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        // style: KCustomTextStyle.kMedium(
-        //   context,
-        //   FontSize.kMedium,
-        //   KConstantColors.bgColor,
-        //   KConstantFonts.haskoyMedium,
-        // ),
-      ),
+        child: Text(
+          label,
+          // style: KCustomTextStyle.kMedium(
+          //   context,
+          //   FontSize.kMedium,
+          //   KConstantColors.bgColor,
+          //   KConstantFonts.haskoyMedium,
+          // ),
+        ),
     );
   }
 
   Widget buildFeaturedSection(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height / 2,
-      width: MediaQuery.of(context).size.width / 2,
       padding: const EdgeInsets.all(8),
       child: GridView.count(
         shrinkWrap: true,
@@ -96,11 +103,20 @@ class Dashboard extends StatelessWidget {
         crossAxisSpacing: 8,
         childAspectRatio: 1.0,
         children: [
-          buildFeaturedItem(context, 'Live Fact Check', 'assets/icon/mic_check.png', () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const DebatesListScreen(),));
+          buildFeaturedItem(context, 'Live Debate Fact Check', 'assets/icon/debate_check.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DebatesListScreen()),
+            );
+          }),
+          buildFeaturedItem(context, 'Speech Fact Check', 'assets/icon/mic_check.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SpeechListScreen()),
+            );
           }),
           buildFeaturedItem(context, 'Image Fact Check', 'assets/icon/scan_check.png', () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SizedBox()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const ImageReportListScreen()));
           }),
         ],
       ),
@@ -155,9 +171,27 @@ class Dashboard extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
+      onTap: (value) {
+        setState(() {
+          switch (value) {
+            case 0:
+              _navigationIndex = 0;
+              break;
+            case 2:
+              _navigationIndex = 1;
+              break;
+            default:
+              _navigationIndex = 0;
+              break;
+          }
+        });
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: SizedBox(), label: ''),
+        BottomNavigationBarItem(
+          icon: AbsorbPointer(child: SizedBox()),
+          label: '',
+        ),
         BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Profile'),
       ],
     );

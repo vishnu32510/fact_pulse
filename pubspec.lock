@@ -462,7 +462,7 @@ packages:
       path: "../perplexity_dart"
       relative: true
     source: path
-    version: "1.0.4"
+    version: "1.0.5"
   perplexity_flutter:
     dependency: "direct main"
     description:

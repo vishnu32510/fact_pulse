@@ -94,10 +94,13 @@ class _DebateScreenState extends State<DebateScreen> {
   }
 
   Future<void> _onSpeechResult(stt.SpeechRecognitionResult result) async {
+    final prevLen = '$_fullTranscript $textChunks'.split(' ').length;
     textChunks = result.recognizedWords;
     _transcriptionController.add('$_fullTranscript $textChunks');
-    if (textChunks.split(' ').length % 7 == 0) {
-      _queryFactCheck('$_fullTranscript $textChunks');
+    final results = '$_fullTranscript $textChunks';
+    final currLen = results.split(" ").length;
+    if (prevLen - currLen >= 7) {
+      _queryFactCheck(results);
     }
   }
 
@@ -144,7 +147,6 @@ class _DebateScreenState extends State<DebateScreen> {
         batch.set(doc, {
           'claim': c.claim,
           'rating': c.rating,
-          'type': c.type,
           'explanation': c.explanation,
           'sources': c.sources,
           'createdAt': FieldValue.serverTimestamp(),
@@ -194,7 +196,7 @@ class _DebateScreenState extends State<DebateScreen> {
                       .collection('debates')
                       .doc(widget.debateId)
                       .collection('claims')
-                      .orderBy('createdAt',descending: true)
+                      .orderBy('createdAt')
                       .snapshots(),
                   builder: (ctx, snap) {
                     if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
@@ -208,7 +210,6 @@ class _DebateScreenState extends State<DebateScreen> {
                         final claim = Claims(
                           claim: data['claim'] as String?,
                           rating: data['rating'] as String?,
-                          type: data['type'] as String?,
                           explanation: data['explanation'] as String?,
                           sources: (data['sources'] as List<dynamic>?)?.cast<String>(),
                         );
@@ -238,7 +239,6 @@ class _DebateScreenState extends State<DebateScreen> {
 
   // Add this helper if you like:
   Widget _buildClaimBubble(Claims claim, {required VoidCallback onTap}) {
-    print(claim.type.toString());
     final isFor = claim.type == 'FOR';
     final bgColor = isFor ? Colors.green.shade50 : Colors.red.shade50;
     final radius = BorderRadius.circular(12);

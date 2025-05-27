@@ -1,0 +1,50 @@
+class PerplexityResponseModel {
+  List<Claims>? claims;
+
+  PerplexityResponseModel({this.claims});
+
+  PerplexityResponseModel.fromJson(Map<String, dynamic> json) {
+    if (json['claims'] != null) {
+      claims = <Claims>[];
+      json['claims'].forEach((v) {
+        claims!.add(Claims.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (claims != null) {
+      data['claims'] = claims!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class Claims {
+  String? claim;
+  String? rating;
+  String? type;
+  String? explanation;
+  List<String>? sources;
+
+  Claims({this.claim, this.rating, this.explanation, this.sources,this.type});
+
+  Claims.fromJson(Map<String, dynamic> json) {
+    claim = json['claim'];
+    rating = json['rating'];
+    type = json['type'];
+    explanation = json['explanation'];
+    sources = json['sources'].cast<String>();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['claim'] = claim;
+    data['rating'] = rating;
+    data['type'] = type;
+    data['explanation'] = explanation;
+    data['sources'] = sources;
+    return data;
+  }
+}

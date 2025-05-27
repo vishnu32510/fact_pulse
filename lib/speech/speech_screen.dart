@@ -12,16 +12,16 @@ import 'package:perplexity_flutter/perplexity_flutter.dart';
 import 'package:speech_to_text/speech_recognition_result.dart' as stt;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-class DebateScreen extends StatefulWidget {
-  final String debateId;
+class SpeechScreen extends StatefulWidget {
+  final String speechId;
   final String topic;
-  const DebateScreen({super.key, required this.debateId, required this.topic});
+  const SpeechScreen({super.key, required this.speechId, required this.topic});
 
   @override
-  State<DebateScreen> createState() => _DebateScreenState();
+  State<SpeechScreen> createState() => _SpeechScreenState();
 }
 
-class _DebateScreenState extends State<DebateScreen> {
+class _SpeechScreenState extends State<SpeechScreen> {
   late stt.SpeechToText _speech;
   late PerplexityClient _client;
   late final String uid;
@@ -29,7 +29,6 @@ class _DebateScreenState extends State<DebateScreen> {
   String textChunks = "";
 
   final _transcriptionController = StreamController<String>.broadcast();
-  final _debateModelController = StreamController<PerplexityResponseModel>.broadcast();
   final _isListeningController = StreamController<bool>.broadcast();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -45,18 +44,18 @@ class _DebateScreenState extends State<DebateScreen> {
     _client = PerplexityClient(apiKey: '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');
     _initializeSpeech();
     // Once user & widget.debateId are ready, do:
-    WidgetsBinding.instance.addPostFrameCallback((_) => _setupDebateDoc());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _setupSpeechDoc());
   }
 
-  Future<void> _setupDebateDoc() async {
+  Future<void> _setupSpeechDoc() async {
     final authState = context.read<AuthenticationBloc>().state;
     if (authState.status != AuthenticationStatus.authenticated) return;
     final uid = authState.user.id;
     final debateDoc = _firestore
         .collection('users')
         .doc(uid)
-        .collection('debates')
-        .doc(widget.debateId);
+        .collection('speechs')
+        .doc(widget.speechId);
 
     final snapshot = await debateDoc.get();
     if (!snapshot.exists) {
@@ -114,10 +113,10 @@ class _DebateScreenState extends State<DebateScreen> {
     final debateDoc = _firestore
         .collection('users')
         .doc(uid)
-        .collection('debates')
-        .doc(widget.debateId);
+        .collection('speechs')
+        .doc(widget.speechId);
 
-    final systemPrompt = loadDebateSystemPrompt(topic: widget.topic);
+    final systemPrompt = loadSpeechSystemPrompt(topic: widget.topic);
     final request = ChatRequestModel.defaultRequest(
       systemPrompt: systemPrompt,
       prompt: prompt,
@@ -144,7 +143,6 @@ class _DebateScreenState extends State<DebateScreen> {
         batch.set(doc, {
           'claim': c.claim,
           'rating': c.rating,
-          'type': c.type,
           'explanation': c.explanation,
           'sources': c.sources,
           'createdAt': FieldValue.serverTimestamp(),
@@ -161,7 +159,6 @@ class _DebateScreenState extends State<DebateScreen> {
   void dispose() {
     _speech.stop();
     _transcriptionController.close();
-    _debateModelController.close();
     _isListeningController.close();
     super.dispose();
   }
@@ -170,7 +167,7 @@ class _DebateScreenState extends State<DebateScreen> {
   Widget build(BuildContext context) {
     return SelectionArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Debate Dynamic')),
+        appBar: AppBar(title: const Text('Speech Dynamic')),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -185,16 +182,16 @@ class _DebateScreenState extends State<DebateScreen> {
               ),
               const Divider(),
 
-              // Parsed debate-claims list
+              // Parsed speech-claims list
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('users')
                       .doc(uid)
-                      .collection('debates')
-                      .doc(widget.debateId)
+                      .collection('speechs')
+                      .doc(widget.speechId)
                       .collection('claims')
-                      .orderBy('createdAt',descending: true)
+                      .orderBy('createdAt')
                       .snapshots(),
                   builder: (ctx, snap) {
                     if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
@@ -208,7 +205,6 @@ class _DebateScreenState extends State<DebateScreen> {
                         final claim = Claims(
                           claim: data['claim'] as String?,
                           rating: data['rating'] as String?,
-                          type: data['type'] as String?,
                           explanation: data['explanation'] as String?,
                           sources: (data['sources'] as List<dynamic>?)?.cast<String>(),
                         );
@@ -238,13 +234,11 @@ class _DebateScreenState extends State<DebateScreen> {
 
   // Add this helper if you like:
   Widget _buildClaimBubble(Claims claim, {required VoidCallback onTap}) {
-    print(claim.type.toString());
-    final isFor = claim.type == 'FOR';
-    final bgColor = isFor ? Colors.green.shade50 : Colors.red.shade50;
+    final bgColor = Colors.red.shade50;
     final radius = BorderRadius.circular(12);
 
     return Column(
-      crossAxisAlignment: isFor ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
@@ -261,17 +255,17 @@ class _DebateScreenState extends State<DebateScreen> {
         GestureDetector(
           onTap: onTap,
           child: Row(
-            mainAxisAlignment: isFor ? MainAxisAlignment.start : MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Visibility(visible: !isFor, child: Icon(Icons.link)),
+              Icon(Icons.link),
               Flexible(
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(color: bgColor, borderRadius: radius),
                   child: Column(
-                    crossAxisAlignment: isFor ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 8),
@@ -280,7 +274,6 @@ class _DebateScreenState extends State<DebateScreen> {
                   ),
                 ),
               ),
-              Visibility(visible: isFor, child: Icon(Icons.link)),
             ],
           ),
         ),
