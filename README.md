@@ -1,15 +1,21 @@
-# Fact Pulse
+<br/>
+<p align="center">
+  <a href="https://github.com/vishnu32510/fact_pulse">
+    <img src="assets/icon/icon.png" alt="Logo" width="80" height="80" style="border-radius: 14px;">
+  </a>
+  <h1 align="center">Fact Pulse</h1>
+</p>
 
 A Flutter application that uses Perplexity’s Sonar API to provide real-time fact-checking for images and spoken content. Fact Pulse helps users verify information on-the-fly during debates, presentations, or when analyzing images containing claims.
 
-## 🏆 Perplexity Hackathon Submission
+## Perplexity Hackathon Submission
 
 **Category**: Information Tools  
-**Bonus Category**: Education
+**Bonus Category**: Deep Research & Education
 
-## 📱 Demo & Screenshots
+## Demo & Screenshots
 
-[Watch the demo video](#)
+[Watch the demo video](https://youtu.be/92IoX19Djtc)
 
 [Web Demo](https://fact-pulse.web.app/) - May remove later
 
@@ -23,12 +29,12 @@ A Flutter application that uses Perplexity’s Sonar API to provide real-time fa
 
 <table>
   <tr>
-    <td><img src="assets/screenshots/3. Facts Checked List(Speech, Debate, Image).png" width="200"/></td>
-    <td><img src="assets/screenshots/4. Fact Checks(Speech, Debate, Image).png" width="200"/></td>
+    <td><img src="assets/screenshots/3. Facts Checked List(Speech, Debate, Image).png" width="300"/></td>
+    <td><img src="assets/screenshots/4. Fact Checks(Speech, Debate, Image).png" width="300"/></td>
   </tr>
 </table>
 
-## ✨ Features
+## Features
 
 * **Real-time Speech Analysis**
   Transcribes spoken content and fact-checks statements on the fly.
@@ -47,7 +53,7 @@ A Flutter application that uses Perplexity’s Sonar API to provide real-time fa
 * **Cross-platform**
   Supports iOS, Android, and Web (macOS support in testing, Windows not currently supported).
 
-## 🔍 Perplexity API Integration
+## Perplexity API Integration
 
 Fact Pulse leverages Perplexity's Sonar API in several key ways:
 
@@ -78,7 +84,7 @@ Fact Pulse leverages Perplexity's Sonar API in several key ways:
    }
    ```
 
-## 📦 Open-Source Packages
+## Open-Source Packages
 
 As part of this project, I've developed and open-sourced two Dart packages to make Perplexity API integration easier for the Flutter community:
 
@@ -108,7 +114,7 @@ Key features:
 - Platform-specific optimizations
 - Example implementations
 
-## 🏗️ Technical Implementation
+## Technical Implementation
 
 ### Architecture & State Management
 
@@ -139,7 +145,7 @@ users/{uid}/images/{imageId}/
   • { topic, createdAt, response, complete, lastOpenedAt }
 ```
 
-## 🚀 Impact & Innovation
+## Impact & Innovation
 
 Fact Pulse addresses the critical challenge of misinformation by:
 
@@ -148,7 +154,7 @@ Fact Pulse addresses the critical challenge of misinformation by:
 3. **Educational Value**: Helps users learn to identify reliable information
 4. **Open Source Contribution**: The packages we've developed make Perplexity's powerful API accessible to the entire Flutter ecosystem
 
-## ⚠️ Current Limitations
+## Current Limitations
 
 * **Apple Sign-in**: Not currently implemented as it requires a paid Apple Developer membership
 * **Firebase Storage**: Image and report storage is limited as Firebase Storage requires a paid subscription for larger storage needs
@@ -157,7 +163,7 @@ Fact Pulse addresses the critical challenge of misinformation by:
 
 These limitations are primarily due to development resource constraints and would be addressed in a production environment.
 
-## 🛠️ Setup & Run
+## Setup & Run
 
 1. **Clone**
 
@@ -174,24 +180,28 @@ These limitations are primarily due to development resource constraints and woul
 
    * Create a Firebase project
    * Enable Auth (Google, Email) & Firestore
-   * Add `google-services.json` / `GoogleService-Info.plist`
+   * Use Firebase CLI to configure local Firebase settings
+
 4. **API Key**
 
    * Set `PERPLEXITY_API_KEY` in your environment or `.env`
+   * Set `PERPLEXITY_API_KEY` in `lib/perplexity.dart` (not recommended for production)
+
 5. **Run**
 
    ```bash
    flutter run
    ```
 
-## 🔮 Future Roadmap
+## Future Roadmap
 
 * Real-time collaborative sessions
+* News article verification on date range
 * Video-conference integration
 * Offline/cached fact-checks
 * Misinformation analytics dashboard
 * Browser extension for web content verification
 
-## 📄 License
+## License
 
 MIT License — see the [LICENSE](LICENSE) file for details.
