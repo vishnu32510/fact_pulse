@@ -715,17 +715,19 @@ packages:
   perplexity_dart:
     dependency: transitive
     description:
-      path: "../perplexity_dart"
-      relative: true
-    source: path
+      name: perplexity_dart
+      sha256: b33c02c7328a08b75f2415b2f40d05f42f470f8610e06f210b1becbc0ec404c4
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.5"
   perplexity_flutter:
     dependency: "direct main"
     description:
-      path: "../perplexity_flutter"
-      relative: true
-    source: path
-    version: "2.0.3"
+      name: perplexity_flutter
+      sha256: "332ad00dc5b204d08a97a241846499dc86069c20a6aa5eca5f994947c329a3df"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.4"
   petitparser:
     dependency: transitive
     description:
