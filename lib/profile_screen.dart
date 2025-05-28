@@ -41,7 +41,7 @@ class ProfileScreen extends StatelessWidget {
         // App Bar with profile background
         SliverAppBar(
           expandedHeight: 200,
-          pinned: true,
+          pinned: false,
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
               decoration: BoxDecoration(
@@ -78,13 +78,6 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            title: Text(
-              'Profile',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-            ),
             centerTitle: true,
           ),
         ),
@@ -109,7 +102,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // User name
+                    SizedBox(height: 18),
                     Text(
                       displayName,
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -118,7 +111,6 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     
-                    // User email
                     if (email != null) ...[
                       const SizedBox(height: 4),
                       Text(

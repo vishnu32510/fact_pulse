@@ -289,6 +289,116 @@ class _ImageReportScreenState extends State<ImageReportScreen> {
     }
   }
 
+  // New method to analyze multiple images at once
+  Future<void> _analyzeMultipleImages() async {
+    if (_isAnalyzing) return;
+    
+    // Check if there are any images to analyze
+    final totalImages = _localImages.length + _imageData.length;
+    if (totalImages == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No images to analyze')),
+      );
+      return;
+    }
+    
+    setState(() {
+      _isAnalyzing = true;
+    });
+    
+    try {
+      final authState = context.read<AuthenticationBloc>().state;
+      if (authState.status != AuthenticationStatus.authenticated) return;
+      final uid = authState.user.id;
+
+      final imageDoc = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('images')
+          .doc(widget.imageId);
+
+      // Use the loadImageSystemPrompt from prompts.dart
+      final systemPrompt = loadImageSystemPrompt(topic: widget.topic);
+      
+      // Create a prompt that describes the images
+      final imagePrompt = "Analyze these images and identify any factual claims present. The images are related to the topic: ${widget.topic}";
+      
+      // Prepare all images (both local and URL) for the API
+      List<String> urlList = [];
+      
+      // Add URL images
+      urlList.addAll(_imageData);
+      
+      // Add local images as base64 data URLs
+      for (final localImage in _localImages) {
+        final bytes = kIsWeb
+            ? await localImage.readAsBytes()
+            : await File(localImage.path).readAsBytes();
+        final base64String = base64Encode(bytes);
+        final dataUrl = 'data:image/jpeg;base64,$base64String';
+        urlList.add(dataUrl);
+      }
+      
+      final request = ChatRequestModel.defaultImageRequest(
+        urlList: urlList,
+        systemPrompt: systemPrompt,
+        imagePrompt: imagePrompt,
+        stream: false,
+        model: PerplexityModel.sonar,
+      );
+
+      final response = await _client.sendMessage(requestModel: request);
+      final decoded = jsonDecode(response.content);
+      final model = PerplexityResponseModel.fromJson(decoded);
+
+      await imageDoc.set({
+        'response': imagePrompt,
+        'complete': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // Batch-write each claim into its own doc
+      final batch = _firestore.batch();
+      final claimsCol = imageDoc.collection('claims');
+      for (final c in model.claims ?? []) {
+        final doc = claimsCol.doc();
+        batch.set(doc, {
+          'claim': c.claim,
+          'rating': c.rating,
+          'explanation': c.explanation,
+          'sources': c.sources,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Images analyzed successfully!')),
+      );
+    } catch (e) {
+      debugPrint('Error analyzing images: $e');
+      // Optional: record error on parent doc
+      final authState = context.read<AuthenticationBloc>().state;
+      if (authState.status == AuthenticationStatus.authenticated) {
+        final uid = authState.user.id;
+        final imageDoc = _firestore
+            .collection('users')
+            .doc(uid)
+            .collection('images')
+            .doc(widget.imageId);
+        await imageDoc.set({'error': e.toString()}, SetOptions(merge: true));
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error analyzing images: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isAnalyzing = false;
+      });
+    }
+  }
+
   void _removeLocalImage(int index) {
     if (_localImages.isEmpty || index >= _localImages.length) return;
     
@@ -381,23 +491,47 @@ class _ImageReportScreenState extends State<ImageReportScreen> {
           ),
         ),
       ),
-      floatingActionButton: Row(
+      floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FloatingActionButton(
-            heroTag: 'addUrl',
-            onPressed: _isAnalyzing ? null : _showAddUrlDialog,
-            child: const Icon(Icons.link),
-            tooltip: 'Add Image URL',
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton(
-            heroTag: 'addLocal',
-            onPressed: _isAnalyzing ? null : _pickLocalImages,
-            child: _isAnalyzing 
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Icon(Icons.add_photo_alternate),
-            tooltip: 'Add Local Images',
+          // Analyze all images button
+          if (_localImages.isNotEmpty || _imageData.isNotEmpty)
+            FloatingActionButton.extended(
+              heroTag: 'analyzeAll',
+              onPressed: _isAnalyzing ? null : _analyzeMultipleImages,
+              icon: _isAnalyzing 
+                  ? const SizedBox(
+                      width: 18, 
+                      height: 18, 
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.auto_awesome_mosaic),
+              label: const Text('Analyze All Images'),
+            ),
+          const SizedBox(height: 16),
+          // Add image buttons
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton(
+                heroTag: 'addUrl',
+                onPressed: _isAnalyzing ? null : _showAddUrlDialog,
+                child: const Icon(Icons.link),
+                tooltip: 'Add Image URL',
+              ),
+              const SizedBox(width: 16),
+              FloatingActionButton(
+                heroTag: 'addLocal',
+                onPressed: _isAnalyzing ? null : _pickLocalImages,
+                child: _isAnalyzing 
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Icon(Icons.add_photo_alternate),
+                tooltip: 'Add Local Images',
+              ),
+            ],
           ),
         ],
       ),
@@ -901,87 +1035,97 @@ class _ImageReportScreenState extends State<ImageReportScreen> {
                       ),
               ),
               
-              // Delete button
+              // Image controls overlay
               Positioned(
                 top: 8,
-                right: 8,
-                child: IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  onPressed: () {
-                    if (_currentImageIndex < _localImages.length) {
-                      _removeLocalImage(_currentImageIndex);
-                    } else {
-                      _removeUrlImage(_currentImageIndex);
-                    }
-                  },
-                ),
-              ),
-              
-              // Analyze button
-              Positioned(
-                top: 8,
-                left: 8,
-                child: IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: _isAnalyzing 
-                        ? const SizedBox(
-                            width: 16, 
-                            height: 16, 
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.search, color: Colors.white),
-                  ),
-                  onPressed: _isAnalyzing ? null : () async {
-                    if (_currentImageIndex < _localImages.length) {
-                      // Analyze local image
-                      final pickedFile = _localImages[_currentImageIndex];
-                      final bytes = kIsWeb
-                          ? await pickedFile.readAsBytes()
-                          : await File(pickedFile.path).readAsBytes();
-                      final base64String = base64Encode(bytes);
-                      await _analyzeImage(base64String);
-                    } else {
-                      // Analyze URL image
-                      await _analyzeImage(_imageData[_currentImageIndex - _localImages.length]);
-                    }
-                  },
-                ),
-              ),
-              
-              // Image counter
-              Positioned(
-                bottom: 8,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withOpacity(0.7),
+                          shape: BoxShape.circle,
+                        ),
+                        child: _isAnalyzing 
+                            ? const SizedBox(
+                                width: 16, 
+                                height: 16, 
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.search, color: Colors.white),
+                      ),
+                      onPressed: _isAnalyzing ? null : () async {
+                        if (_currentImageIndex < _localImages.length) {
+                          // Analyze local image
+                          final pickedFile = _localImages[_currentImageIndex];
+                          final bytes = kIsWeb
+                              ? await pickedFile.readAsBytes()
+                              : await File(pickedFile.path).readAsBytes();
+                          final base64String = base64Encode(bytes);
+                          await _analyzeImage(base64String);
+                        } else {
+                          // Analyze URL image
+                          await _analyzeImage(_imageData[_currentImageIndex - _localImages.length]);
+                        }
+                      },
+                      tooltip: 'Analyze this image',
                     ),
-                    child: Text(
-                      '${_currentImageIndex + 1}/$totalImages',
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    
+                    IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      onPressed: () {
+                        if (_currentImageIndex < _localImages.length) {
+                          _removeLocalImage(_currentImageIndex);
+                        } else {
+                          _removeUrlImage(_currentImageIndex);
+                        }
+                      },
+                      tooltip: 'Remove this image',
+                    ),
+                  ],
+                ),
+              ),
+              
+              if (totalImages > 1)
+                Positioned(
+                  bottom: 8,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: ElevatedButton.icon(
+                      icon: _isAnalyzing 
+                          ? const SizedBox(
+                              width: 16, 
+                              height: 16, 
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.auto_awesome_mosaic, size: 16),
+                      label: const Text('Analyze All Images'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: _isAnalyzing ? null : _analyzeMultipleImages,
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -1028,6 +1172,15 @@ class _ImageReportScreenState extends State<ImageReportScreen> {
                                 _showAddUrlDialog();
                               },
                             ),
+                            if (totalImages > 1)
+                              ListTile(
+                                leading: const Icon(Icons.auto_awesome_mosaic),
+                                title: const Text('Analyze All Images'),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _analyzeMultipleImages();
+                                },
+                              ),
                           ],
                         ),
                       );
