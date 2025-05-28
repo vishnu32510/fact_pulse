@@ -235,6 +235,7 @@ class _ImageReportScreenState extends State<ImageReportScreen> {
         imagePrompt: imagePrompt,
         stream: false,
         model: PerplexityModel.sonar,
+        // responseFormat: generalResponseFormate,
       );
 
       final response = await _client.sendMessage(requestModel: request);

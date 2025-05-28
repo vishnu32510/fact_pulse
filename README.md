@@ -2,9 +2,25 @@
 
 A Flutter application that uses Perplexity’s Sonar API to provide real-time fact-checking for images and spoken content. Fact Pulse helps users verify information on-the-fly during debates, presentations, or when analyzing images containing claims.
 
----
+## 🏆 Perplexity Hackathon Submission
 
-## Features
+**Category**: Information Tools  
+**Bonus Category**: Education
+
+## 📱 Demo & Screenshots
+
+[Watch the demo video](#) <!-- TODO: Add your demo video link here -->
+
+<!-- TODO: Add screenshots of your app in action -->
+<table>
+  <tr>
+    <td><img src="screenshots/debate_analysis.png" width="200"/></td>
+    <td><img src="screenshots/image_verification.png" width="200"/></td>
+    <td><img src="screenshots/claim_details.png" width="200"/></td>
+  </tr>
+</table>
+
+## ✨ Features
 
 * **Real-time Speech Analysis**
   Transcribes spoken content and fact-checks statements on the fly.
@@ -15,17 +31,76 @@ A Flutter application that uses Perplexity’s Sonar API to provide real-time fa
 * **Source Citations**
   Provides reliable sources for each fact-check.
 * **User Authentication**
-  Secure login with Firebase (Google, Apple, Email).
+  Secure login with Firebase (Google, Email).
 * **Debate Mode**
   Continuous speech recognition during live debates, with instant fact feedback.
 * **Firestore Integration**
   Persists transcripts and fact-checks for future reference.
 * **Cross-platform**
-  Supports iOS, Android, and Web.
+  Supports iOS, Android, and Web (macOS support in testing, Windows not currently supported).
 
----
+## 🔍 Perplexity API Integration
 
-## Technical Implementation
+Fact Pulse leverages Perplexity's Sonar API in several key ways:
+
+1. **Debate Fact-Checking**:
+   - Speech is transcribed in real-time using `speech_to_text`
+   - Transcribed text is sent to Perplexity's Sonar API via our custom client
+   - Carefully crafted prompts (in `lib/debate/prompts.dart`) instruct the model to:
+     - Extract verifiable factual claims
+     - Verify each claim against authoritative sources
+     - Return structured JSON with claim, rating, explanation, and sources
+
+2. **Image Analysis**:
+   - Images are processed and sent to Sonar API
+   - The API extracts text from images and identifies claims
+   - Each claim is verified and rated for accuracy
+
+3. **JSON Response Handling**:
+   ```json
+   {
+     "claims": [
+       {
+         "claim": "Example factual statement",
+         "rating": "TRUE|FALSE|MISLEADING|UNVERIFIABLE",
+         "explanation": "Verification details",
+         "sources": ["Source URL 1", "Source URL 2"]
+       }
+     ]
+   }
+   ```
+
+## 📦 Open-Source Packages
+
+As part of this project, I've developed and open-sourced two Dart packages to make Perplexity API integration easier for the Flutter community:
+
+### perplexity_dart
+
+A lightweight, type-safe Dart SDK for Perplexity's chat/completions API with both streaming and non-streaming support.
+
+- [pub.dev](https://pub.dev/packages/perplexity_dart)
+- [GitHub](https://github.com/vishnu32510/perplexity_dart)
+
+Key features:
+- Type-safe API client
+- Streaming and non-streaming support
+- Comprehensive error handling
+- Customizable request options
+
+### perplexity_flutter
+
+Flutter-specific wrapper and widgets for easier Perplexity API integration in Flutter apps.
+
+- [pub.dev](https://pub.dev/packages/perplexity_flutter)
+- [GitHub](https://github.com/vishnu32510/perplexity_flutter)
+
+Key features:
+- Ready-to-use Flutter widgets
+- Simplified state management
+- Platform-specific optimizations
+- Example implementations
+
+## 🏗️ Technical Implementation
 
 ### Architecture & State Management
 
@@ -39,21 +114,6 @@ Built with Flutter and the BLoC pattern for a clean separation between UI and lo
   Upload or URL-reference images to Sonar API, extract and verify on-image text
 * **Data Layer**
   Firestore collections per user → debates/images → transcriptions & claims
-
-### Perplexity Integration
-
-* **Prompt Engineering**
-  Custom system prompts (in `lib/debate/prompts.dart`) instruct the model to:
-
-  1. Extract verifiable factual claims (skip “um,” “I think,” etc.)
-  2. Verify each claim against authoritative sources
-  3. Return **pure JSON** with fields: `claim`, `rating`, `explanation`, `sources`
-* **Request Flow**
-
-  1. Capture speech chunks (≈7 words each) or image URL/base64
-  2. Send to `PerplexityClient` (our Dart SDK)
-  3. Parse JSON into `DebateResponseModel`
-  4. Store each claim in Firestore and render in UI
 
 ### Firestore Schema
 
@@ -71,33 +131,25 @@ users/{uid}/images/{imageId}/
   • { topic, createdAt, response, complete, lastOpenedAt }
 ```
 
----
+## 🚀 Impact & Innovation
 
-## Open-Source Packages
+Fact Pulse addresses the critical challenge of misinformation by:
 
-* **perplexity\_dart**
-  A lightweight, type-safe Dart SDK for Perplexity’s chat/completions API (streaming + non-streaming).
-  [pub.dev](https://pub.dev/packages/perplexity_dart) • [GitHub](https://github.com/vishnu32510/perplexity_dart)
-* **perplexity\_flutter**
-  Flutter-specific wrapper + widgets for easier integration.
-  [pub.dev](https://pub.dev/packages/perplexity_flutter) • [GitHub](https://github.com/vishnu32510/perplexity_flutter)
+1. **Democratizing Fact-Checking**: Puts powerful verification tools in everyone's hands
+2. **Real-Time Analysis**: Provides immediate feedback during live conversations
+3. **Educational Value**: Helps users learn to identify reliable information
+4. **Open Source Contribution**: The packages we've developed make Perplexity's powerful API accessible to the entire Flutter ecosystem
 
----
+## ⚠️ Current Limitations
 
-## Hackathon Categories
+* **Apple Sign-in**: Not currently implemented as it requires a paid Apple Developer membership
+* **Firebase Storage**: Image and report storage is limited as Firebase Storage requires a paid subscription for larger storage needs
+* **API Models**: Currently using only Sonar and SonarPro models due to limited Perplexity API credits
+* **Platform Support**: Windows is not currently supported, and macOS support is still in testing
 
-* **Primary**: Information Tools
-* **Bonus**: Education
+These limitations are primarily due to development resource constraints and would be addressed in a production environment.
 
----
-
-## Demo
-
-📺 [Watch the demo video](#)
-
----
-
-## Setup & Run
+## 🛠️ Setup & Run
 
 1. **Clone**
 
@@ -113,7 +165,7 @@ users/{uid}/images/{imageId}/
 3. **Firebase**
 
    * Create a Firebase project
-   * Enable Auth (Google, Apple, Email) & Firestore
+   * Enable Auth (Google, Email) & Firestore
    * Add `google-services.json` / `GoogleService-Info.plist`
 4. **API Key**
 
@@ -124,9 +176,7 @@ users/{uid}/images/{imageId}/
    flutter run
    ```
 
----
-
-## Future Roadmap
+## 🔮 Future Roadmap
 
 * Real-time collaborative sessions
 * Video-conference integration
@@ -134,8 +184,6 @@ users/{uid}/images/{imageId}/
 * Misinformation analytics dashboard
 * Browser extension for web content verification
 
----
-
-## License
+## 📄 License
 
 MIT License — see the [LICENSE](LICENSE) file for details.

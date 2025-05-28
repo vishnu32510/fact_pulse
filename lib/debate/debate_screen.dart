@@ -94,7 +94,7 @@ class _DebateScreenState extends State<DebateScreen> {
     if (await _speech.hasPermission) {
       _fullTranscript = _fullTranscript + textChunks;
       _isListeningController.add(true);
-      _speech.listen(onResult: _onSpeechResult, listenMode: stt.ListenMode.dictation);
+      _speech.listen(onResult: _onSpeechResult, listenFor: Duration(hours: 2), pauseFor: Duration(hours: 2), listenOptions: stt.SpeechListenOptions(listenMode: stt.ListenMode.dictation));
     }
   }
 
@@ -171,6 +171,7 @@ class _DebateScreenState extends State<DebateScreen> {
       prompt: prompt,
       stream: false,
       model: PerplexityModel.sonar,
+      // responseFormat: debateResponseFormate,
     );
 
     try {

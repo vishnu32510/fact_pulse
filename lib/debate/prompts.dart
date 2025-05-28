@@ -1,3 +1,54 @@
+Map<String, dynamic> generalResponseFormate = {
+      "type": "json_schema",
+      "json_schema": {
+        r"$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claim": { "type": "string" },
+                "rating": {
+                  "type": "string",
+                  "enum": ["TRUE", "FALSE", "MISLEADING", "UNVERIFIABLE"]
+                },
+                "explanation": { "type": "string" },
+                "sources": {
+                  "type": "array",
+                  "items": { "type": "string", "format": "uri" },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": ["claim", "rating", "explanation", "sources"]
+            }
+          }
+        },
+        "required": ["claims"]
+      }
+    };
+
+Map<String, dynamic> debateResponseFormate = {
+  "claims": [
+    {
+      "claim": "Social media enables global communication.",
+      "rating": "TRUE",
+      "type": "FOR",
+      "explanation": "Numerous studies show that social platforms connect people across borders in real time.",
+      "sources": ["https://www.pewresearch.org/internet/2018/06/19/social-media-use-in-developing-countries", "https://www.oecd.org/publications/how-s-life-in-the-digital-age_9789264311800-en.html"]
+    },
+    {
+      "claim": "Digital natives no longer need in-person education.",
+      "rating": "MISLEADING",
+      "type": "AGAINST",
+      "explanation": "While online tools supplement learning, most curricula still require physical classroom components.",
+      "sources": ["https://now.uiowa.edu/news/2013/06/living-digital-world", "https://www.sciencedirect.com/science/article/pii/S0360131518303151"]
+    }
+  ]
+};
+
 String loadDebateSystemPrompt({String topic = 'General'}) {
   return '''
 Debate Topic: $topic

@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.20.2
   path_provider: ^2.1.5
   pdf: ^3.11.3
+  permission_handler: ^12.0.0+1
   perplexity_flutter:
     path: ../perplexity_flutter
   sign_in_with_apple: ^7.0.1

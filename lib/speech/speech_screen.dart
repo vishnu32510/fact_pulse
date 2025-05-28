@@ -125,6 +125,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       prompt: prompt,
       stream: false,
       model: PerplexityModel.sonar,
+      // responseFormat: generalResponseFormate
     );
 
     try {
