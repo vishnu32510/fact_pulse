@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '85645737322',
     projectId: 'fact-pulse',
     storageBucket: 'fact-pulse.firebasestorage.app',
+    androidClientId: '85645737322-b9kok35cs3f0bdpjfctr4qhn7shbbcah.apps.googleusercontent.com',
     iosClientId: '85645737322-jh5nh682fj9hr06po5euhgeokf417t19.apps.googleusercontent.com',
     iosBundleId: 'com.example.factPulse',
   );
@@ -74,6 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '85645737322',
     projectId: 'fact-pulse',
     storageBucket: 'fact-pulse.firebasestorage.app',
+    androidClientId: '85645737322-b9kok35cs3f0bdpjfctr4qhn7shbbcah.apps.googleusercontent.com',
     iosClientId: '85645737322-jh5nh682fj9hr06po5euhgeokf417t19.apps.googleusercontent.com',
     iosBundleId: 'com.example.factPulse',
   );

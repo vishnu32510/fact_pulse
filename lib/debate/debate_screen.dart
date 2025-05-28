@@ -91,7 +91,7 @@ class _DebateScreenState extends State<DebateScreen> {
   }
 
   Future<void> _startListening() async {
-    if (await _speech.initialize()) {
+    if (await _speech.hasPermission) {
       _fullTranscript = _fullTranscript + textChunks;
       _isListeningController.add(true);
       _speech.listen(onResult: _onSpeechResult, listenMode: stt.ListenMode.dictation);
