@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fact_pulse/helper/local_report_generator_io.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fact_pulse/models/perplexity_response_model.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FactCheckListView extends StatelessWidget {
   final String uid;
@@ -262,24 +266,23 @@ class FactCheckListView extends StatelessWidget {
                     _buildActionChip(
                       context, 
                       Icons.picture_as_pdf, 
-                      'Gnerate Report',
-                      () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Sharing coming soon'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      'Generate Report',
+                      () => _generateReport(context, id, title),
                     ),
                     _buildActionChip(
                       context, 
-                      Icons.more_horiz, 
-                      'More',
-                      () {
-                        _showOptionsBottomSheet(context, id, title);
-                      },
+                      Icons.delete_outline,
+                  'Delete',
+                      () => _showDeleteConfirmation(context, id),
                     ),
+                    // _buildActionChip(
+                    //   context, 
+                    //   Icons.more_horiz, 
+                    //   'More',
+                    //   () {
+                    //     _showOptionsBottomSheet(context, id, title);
+                    //   },
+                    // ),
                   ],
                 ),
               ],
@@ -625,6 +628,201 @@ class FactCheckListView extends StatelessWidget {
         return 'Image Report';
       default:
         return 'Item';
+    }
+  }
+
+  Future<void> _generateReport(BuildContext context, String itemId, String title) async {
+    final theme = Theme.of(context);
+    
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text('Generating Report'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: theme.colorScheme.primary),
+            const SizedBox(height: 16),
+            Text('Please wait while we generate your report...'),
+          ],
+        ),
+      ),
+    );
+    
+    try {
+      // Fetch claims from Firestore
+      final claimsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection(collectionName)
+          .doc(itemId)
+          .collection('claims')
+          .orderBy('createdAt')
+          .get();
+      
+      // Convert to Claims objects
+      final claims = claimsSnapshot.docs.map((doc) {
+        final data = doc.data();
+        return Claims(
+          claim: data['claim'] as String?,
+          rating: data['rating'] as String?,
+          explanation: data['explanation'] as String?,
+          sources: (data['sources'] as List<dynamic>?)?.cast<String>(),
+        );
+      }).toList();
+      
+      // Generate the report using the platform-specific implementation
+      // The local_report_generator.dart file conditionally exports either
+      // local_report_generator_io.dart or local_report_generator_web.dart
+      final reportFile = await generateAndSaveReportLocally(
+        itemId: itemId,
+        claims: claims,
+      );
+      
+      // Close the loading dialog
+      Navigator.of(context).pop();
+      
+      // Show appropriate success dialog based on platform
+      if (kIsWeb) {
+        // Web platform: Show simple success message (file already downloaded)
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Report Generated'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text('Your report has been successfully generated.'),
+                const SizedBox(height: 8),
+                Text(
+                  'The report has been downloaded to your device.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text('CLOSE'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // Mobile/Desktop platforms: Show file path and open options
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Report Generated'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text('Your report has been successfully generated.'),
+                const SizedBox(height: 8),
+                Text(
+                  'The report is saved to your device at:',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  reportFile.path,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text('CLOSE'),
+              ),
+              ElevatedButton.icon(
+                icon: Icon(Icons.open_in_new),
+                label: Text('OPEN'),
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  final uri = Uri.file(reportFile.path);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Could not open the report'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+              ),
+              ElevatedButton.icon(
+                icon: Icon(Icons.share),
+                label: Text('SHARE'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  // TODO: Implement share functionality
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Share functionality coming soon'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      // Close the loading dialog
+      Navigator.of(context).pop();
+      
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Error'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: theme.colorScheme.error,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text('Failed to generate report: ${e.toString()}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text('CLOSE'),
+            ),
+          ],
+        ),
+      );
     }
   }
 }

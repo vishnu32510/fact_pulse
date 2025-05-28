@@ -49,6 +49,10 @@
 	<string>We need access to your microphone for speech recognition</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>We need speech recognition to transcribe your voice</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need Photo library access to analyze images</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need Camera access to capture images</string>
 	<!-- Put me in the [my_project]/ios/Runner/Info.plist file -->
 	<!-- Google Sign-in Section -->
 	<key>GIDClientID</key>

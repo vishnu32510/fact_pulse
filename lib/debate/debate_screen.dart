@@ -275,26 +275,6 @@ class _DebateScreenState extends State<DebateScreen> {
     
     return Column(
       children: [
-        // Topic header
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.secondaryContainer.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            widget.topic,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSecondaryContainer,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        
-        // Live transcription - limited to 1/4 of screen height
         Container(
           constraints: BoxConstraints(
             maxHeight: context.height * 0.25,

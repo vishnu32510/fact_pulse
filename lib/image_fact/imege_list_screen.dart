@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fact_pulse/core/widgets/fact_check_list_view.dart';
 import 'package:fact_pulse/image_fact/image_screen.dart';
@@ -13,7 +14,7 @@ class ImageReportListScreen extends StatelessWidget {
 
     await showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setState) => AlertDialog(
@@ -53,8 +54,10 @@ class ImageReportListScreen extends StatelessWidget {
                         Navigator.of(ctx).pop(); // close dialog
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) =>
-                                ImageReportScreen(imageId: docRef.id, topic: topicCtrl.text.trim()),
+                            builder: (_) => ImageReportScreen(
+                              imageId: docRef.id, 
+                              topic: topicCtrl.text.trim(),
+                            ),
                           ),
                         );
                       },
@@ -74,11 +77,41 @@ class ImageReportListScreen extends StatelessWidget {
   }
 
   void _navigateToImageScreen(BuildContext context, String imageId, String topic) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ImageReportScreen(imageId: imageId, topic: topic),
-      ),
-    );
+    // Fetch the image data from Firestore before navigating
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('images')
+        .doc(imageId)
+        .get()
+        .then((doc) {
+          if (doc.exists) {
+            final data = doc.data()!;
+            final List<String> imageData = data['imageData'] != null 
+                ? List<String>.from(data['imageData'])
+                : [];
+                
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ImageReportScreen(
+                  imageId: imageId, 
+                  topic: topic,
+                ),
+              ),
+            );
+          } else {
+            // Fallback if no image data is found
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ImageReportScreen(
+                  imageId: imageId, 
+                  topic: topic,
+                ),
+              ),
+            );
+          }
+        });
   }
 
   @override

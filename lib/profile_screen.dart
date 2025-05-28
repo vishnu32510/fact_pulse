@@ -136,10 +136,10 @@ class ProfileScreen extends StatelessWidget {
                         ? _buildVerticalStatsCards(context, uid)
                         : _buildHorizontalStatsCards(context, uid),
                     
-                    const SizedBox(height: 32),
+                    // const SizedBox(height: 32),
                     
-                    // Account actions section
-                    _buildAccountActions(context),
+                    // // Account actions section
+                    // _buildAccountActions(context),
                     
                     const SizedBox(height: 32),
                     

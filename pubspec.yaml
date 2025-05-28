@@ -35,6 +35,7 @@ dependencies:
   equatable: ^2.0.7
   firebase_auth: ^5.5.4
   firebase_core: ^3.13.1
+  firebase_storage: ^12.4.6
   firestore_cache: ^2.17.0
   flutter:
     sdk: flutter
@@ -42,7 +43,10 @@ dependencies:
   flutter_launcher_icons: ^0.14.3
   google_sign_in: ^6.3.0
   http: ^1.4.0
+  image_picker: ^1.1.2
   intl: ^0.20.2
+  path_provider: ^2.1.5
+  pdf: ^3.11.3
   perplexity_flutter:
     path: ../perplexity_flutter
   sign_in_with_apple: ^7.0.1
