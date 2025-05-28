@@ -9,12 +9,21 @@ A Flutter application that uses Perplexity’s Sonar API to provide real-time fa
 
 ## 📱 Demo & Screenshots
 
-[Watch the demo video](#) <!-- TODO: Add your demo video link here -->
+[Watch the demo video](#)
+
+[Web Demo](https://fact-pulse.web.app/) - May remove later
 
 <table>
   <tr>
     <td><img src="assets/screenshots/1. Login.png" width="200"/></td>
     <td><img src="assets/screenshots/2. Dashboard.png" width="200"/></td>
+    <td><img src="assets/screenshots/5. Profile.png" width="200"/></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td><img src="assets/screenshots/3. Facts Checked List(Speech, Debate, Image).png" width="200"/></td>
     <td><img src="assets/screenshots/4. Fact Checks(Speech, Debate, Image).png" width="200"/></td>
   </tr>
 </table>
