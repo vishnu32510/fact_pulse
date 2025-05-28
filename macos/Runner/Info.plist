@@ -28,9 +28,30 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+
+	<!-- Permissions -->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need access to your microphone for real-time speech recognition during debates.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This app uses speech recognition to transcribe debates and provide fact-checking responses.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to analyze uploaded images for factual content.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need camera access to capture and analyze images for real-time fact verification.</string>
+
+	<!-- Google Sign-In -->
+	<key>GIDClientID</key>
+	<string>85645737322-jh5nh682fj9hr06po5euhgeokf417t19.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.85645737322-jh5nh682fj9hr06po5euhgeokf417t19</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

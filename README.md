@@ -11,12 +11,11 @@ A Flutter application that uses Perplexity’s Sonar API to provide real-time fa
 
 [Watch the demo video](#) <!-- TODO: Add your demo video link here -->
 
-<!-- TODO: Add screenshots of your app in action -->
 <table>
   <tr>
-    <td><img src="screenshots/debate_analysis.png" width="200"/></td>
-    <td><img src="screenshots/image_verification.png" width="200"/></td>
-    <td><img src="screenshots/claim_details.png" width="200"/></td>
+    <td><img src="assets/screenshots/1. Login.png" width="200"/></td>
+    <td><img src="assets/screenshots/2. Dashboard.png" width="200"/></td>
+    <td><img src="assets/screenshots/4. Fact Checks(Speech, Debate, Image).png" width="200"/></td>
   </tr>
 </table>
 
