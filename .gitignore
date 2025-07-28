@@ -13,6 +13,15 @@
 migrate_working_dir/
 .env
 
+# Firebase configuration files (contain sensitive API keys)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# Platform-specific config files with OAuth client IDs
+ios/Runner/Info.plist
+macos/Runner/Info.plist
+web/index.html
 
 # IntelliJ related
 *.iml

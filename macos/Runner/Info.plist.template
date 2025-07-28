@@ -40,8 +40,9 @@
 	<string>We need camera access to capture and analyze images for real-time fact verification.</string>
 
 	<!-- Google Sign-In -->
+	<!-- REPLACE WITH YOUR ACTUAL GOOGLE OAUTH CLIENT ID FROM .env -->
 	<key>GIDClientID</key>
-	<string>85645737322-jh5nh682fj9hr06po5euhgeokf417t19.apps.googleusercontent.com</string>
+	<string>YOUR_GOOGLE_OAUTH_CLIENT_ID_IOS</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -49,7 +50,8 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.85645737322-jh5nh682fj9hr06po5euhgeokf417t19</string>
+				<!-- REPLACE WITH YOUR ACTUAL REVERSED CLIENT ID -->
+				<string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>
 			</array>
 		</dict>
 	</array>
