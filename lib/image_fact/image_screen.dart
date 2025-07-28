@@ -12,6 +12,7 @@ import 'package:fact_pulse/debate/prompts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:perplexity_flutter/perplexity_flutter.dart';
 
@@ -48,7 +49,8 @@ class _ImageReportScreenState extends State<ImageReportScreen> {
     if (authState.status == AuthenticationStatus.authenticated) {
       uid = authState.user.id;
     }
-    _client = PerplexityClient(apiKey: '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');
+          // Use environment variable for API key
+      _client = PerplexityClient(apiKey: dotenv.env["PERPLEXITY_API_KEY"] ?? "");
     
     // Once user & widget.imageId are ready, do:
     WidgetsBinding.instance.addPostFrameCallback((_) => _setupImageDoc());

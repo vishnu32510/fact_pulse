@@ -31,7 +31,7 @@ dependencies:
   bloc: ^9.0.0
   cloud_firestore: ^5.6.8
   cupertino_icons: ^1.0.8
-  dotenv: ^4.2.0
+  flutter_dotenv: ^5.2.1
   equatable: ^2.0.7
   firebase_auth: ^5.5.4
   firebase_core: ^3.13.1
@@ -75,6 +75,7 @@ flutter:
   assets:
     - assets/icon/
     - assets/prompt/
+    - .env
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

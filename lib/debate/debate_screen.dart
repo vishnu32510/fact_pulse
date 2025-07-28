@@ -11,6 +11,7 @@ import 'package:fact_pulse/models/perplexity_response_model.dart';
 import 'package:fact_pulse/debate/prompts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:perplexity_flutter/perplexity_flutter.dart';
 import 'package:speech_to_text/speech_recognition_result.dart' as stt;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -50,7 +51,8 @@ class _DebateScreenState extends State<DebateScreen> {
       uid = authState.user.id;
     }
     _speech = stt.SpeechToText();
-    _client = PerplexityClient(apiKey: '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');
+          // Use environment variable for API key
+      _client = PerplexityClient(apiKey: dotenv.env["PERPLEXITY_API_KEY"] ?? "");
     _initializeSpeech();
     // Once user & widget.debateId are ready, do:
     WidgetsBinding.instance.addPostFrameCallback((_) => _setupDebateDoc());
